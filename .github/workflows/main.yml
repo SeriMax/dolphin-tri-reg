@@ -13,19 +13,18 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Force Wipe Server Qt6
-      run: |
-        # Исправлено: -Recurse вместо -Recurle
-        Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Qt\6*" -ErrorAction SilentlyContinue
-        Remove-Item -Recurse -Force "C:\Program Files\Qt\6*" -ErrorAction SilentlyContinue
-
-    - name: Remove broken implot
+    - name: Patch Dolphin Code For Qt5 Only
       shell: bash
       run: |
+        # Удаляем сломанный implot
         rm -rf Externals/implot
         if [ -f Externals/CMakeLists.txt ]; then
           sed -i '/implot/d' Externals/CMakeLists.txt
         fi
+        
+        # Принудительно заменяем любые упоминания find_package(Qt6) на Qt5 в файлах CMake эмулятора
+        find . -name "CMakeLists.txt" -exec sed -i 's/Qt6/Qt5/g' {} + 2>/dev/null || true
+        find . -name "*.cmake" -exec sed -i 's/Qt6/Qt5/g' {} + 2>/dev/null || true
 
     - name: Install Qt5
       uses: jurplel/install-qt-action@v3
