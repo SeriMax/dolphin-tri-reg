@@ -1,0 +1,50 @@
+name: Personal Full Build Dolphin x64
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install Qt5
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2019_64'
+        dir: '${{ github.workspace }}/'
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Restore NuGet Packages
+      run: nuget restore Source/Core/DolphinWX/DolphinWX.vcxproj || true
+
+    - name: Build Full Solution
+      run: |
+        msbuild Source/Dolphin.sln /p:Configuration=Release /p:Platform=x64 /p:TreatWarningsAsErrors=false /p:Qt5_DIR="${{ github.workspace }}/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5"
+
+    - name: Pack Full Build
+      shell: bash
+      run: |
+        mkdir -p output
+        # Собираем все исполняемые файлы и плагины из стандартных папок релиза Dolphin
+        cp -r Binary/Release/* output/ 2>/dev/null || true
+        cp -r Source/Core/Binary/Release/* output/ 2>/dev/null || true
+        # На всякий случай добираем скомпилированный графический Dolphin.exe
+        find Source/ -name "Dolphin.exe" -exec cp {} output/ \; 2>/dev/null || true
+        find Source/ -name "*.dll" -exec cp {} output/ \; 2>/dev/null || true
+
+    - name: Upload Finished Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: My-Full-Dolphin-Triforce
+        path: output/
