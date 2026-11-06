@@ -12,7 +12,7 @@ Please read the [FAQ](https://dolphin-emu.org/docs/faq/) before using Dolphin.
 
 ### Desktop
 
-* OS
+* OS 
     * Windows (10 1903 or higher).
     * Linux.
     * macOS (11.0 Big Sur or higher).
