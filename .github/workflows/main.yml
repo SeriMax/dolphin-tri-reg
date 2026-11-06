@@ -16,13 +16,10 @@ jobs:
     - name: Patch Dolphin Code For Qt5 Only
       shell: bash
       run: |
-        # Удаляем сломанный implot
         rm -rf Externals/implot
         if [ -f Externals/CMakeLists.txt ]; then
           sed -i '/implot/d' Externals/CMakeLists.txt
         fi
-        
-        # Принудительно заменяем любые упоминания find_package(Qt6) на Qt5 в файлах CMake эмулятора
         find . -name "CMakeLists.txt" -exec sed -i 's/Qt6/Qt5/g' {} + 2>/dev/null || true
         find . -name "*.cmake" -exec sed -i 's/Qt6/Qt5/g' {} + 2>/dev/null || true
 
@@ -47,6 +44,7 @@ jobs:
           -DWARNINGS_AS_ERRORS=OFF `
           -DUSE_MGBA=OFF `
           -DENABLE_ANALYTICS=OFF `
+          -DENABLE_L10N=OFF `
           -DQt5_DIR="${{ github.workspace }}/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5" `
           -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/5.15.2/msvc2019_64"
 
