@@ -16,9 +16,7 @@ jobs:
     - name: Remove broken implot
       shell: bash
       run: |
-        # Полностью удаляем код implot, чтобы компилятор его не собирал
         rm -rf Externals/implot
-        # Очищаем упоминание implot в файле конфигурации Externals
         if [ -f Externals/CMakeLists.txt ]; then
           sed -i '/implot/d' Externals/CMakeLists.txt
         fi
@@ -41,10 +39,12 @@ jobs:
         cmake -S . -B build -A x64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DENABLE_QT=ON \
+          -DENABLE_QT6=OFF \
           -DENABLE_WX=OFF \
           -DWARNINGS_AS_ERRORS=OFF \
           -DUSE_MGBA=OFF \
           -DENABLE_ANALYTICS=OFF \
+          -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/5.15.2/msvc2019_64" \
           -DQt5_DIR="${{ github.workspace }}/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5"
 
     - name: Build Project
