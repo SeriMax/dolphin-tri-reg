@@ -1,4 +1,4 @@
-name: Personal Full Build Dolphin x64
+name: Personal Full CMake Build Dolphin
 
 on:
   workflow_dispatch:
@@ -25,26 +25,31 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Restore NuGet Packages
-      run: nuget restore Source/Core/DolphinWX/DolphinWX.vcxproj || true
-
-    - name: Build Full Solution
+    - name: Configure CMake
+      shell: bash
       run: |
-        msbuild Source/Dolphin.sln /p:Configuration=Release /p:Platform=x64 /p:TreatWarningsAsErrors=false /p:Qt5_DIR="${{ github.workspace }}/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5"
+        cmake -S . -B build -A x64 \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DENABLE_QT=ON \
+          -DENABLE_WX=OFF \
+          -DWARNINGS_AS_ERRORS=OFF \
+          -DQt5_DIR="${{ github.workspace }}/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5"
+
+    - name: Build Project
+      run: |
+        cmake --build build --config Release --parallel $env:NUMBER_OF_PROCESSORS
 
     - name: Pack Full Build
       shell: bash
       run: |
         mkdir -p output
-        # Собираем все исполняемые файлы и плагины из стандартных папок релиза Dolphin
         cp -r Binary/Release/* output/ 2>/dev/null || true
-        cp -r Source/Core/Binary/Release/* output/ 2>/dev/null || true
-        # На всякий случай добираем скомпилированный графический Dolphin.exe
-        find Source/ -name "Dolphin.exe" -exec cp {} output/ \; 2>/dev/null || true
-        find Source/ -name "*.dll" -exec cp {} output/ \; 2>/dev/null || true
+        cp -r build/Binaries/Release/* output/ 2>/dev/null || true
+        find build -name "Dolphin.exe" -exec cp {} output/ \; 2>/dev/null || true
+        find build -name "*.dll" -exec cp {} output/ \; 2>/dev/null || true
 
     - name: Upload Finished Build
       uses: actions/upload-artifact@v4
       with:
-        name: My-Full-Dolphin-Triforce
+        name: Dolphin-Triforce-Full-Windows
         path: output/
