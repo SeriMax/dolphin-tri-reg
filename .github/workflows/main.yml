@@ -15,9 +15,9 @@ jobs:
 
     - name: Force Wipe Server Qt6
       run: |
-        # Физически стираем встроенную Qt6 с сервера, чтобы CMake её не нашёл
-        Remove-Item -Recurle -Force "C:\hostedtoolcache\windows\Qt\6*" -ErrorAction SilentlyContinue
-        Remove-Item -Recurle -Force "C:\Program Files\Qt\6*" -ErrorAction SilentlyContinue
+        # Исправлено: -Recurse вместо -Recurle
+        Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Qt\6*" -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force "C:\Program Files\Qt\6*" -ErrorAction SilentlyContinue
 
     - name: Remove broken implot
       shell: bash
