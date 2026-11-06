@@ -13,6 +13,16 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Remove broken implot
+      shell: bash
+      run: |
+        # Полностью удаляем код implot, чтобы компилятор его не собирал
+        rm -rf Externals/implot
+        # Очищаем упоминание implot в файле конфигурации Externals
+        if [ -f Externals/CMakeLists.txt ]; then
+          sed -i '/implot/d' Externals/CMakeLists.txt
+        fi
+
     - name: Install Qt5
       uses: jurplel/install-qt-action@v3
       with:
@@ -35,7 +45,6 @@ jobs:
           -DWARNINGS_AS_ERRORS=OFF \
           -DUSE_MGBA=OFF \
           -DENABLE_ANALYTICS=OFF \
-          -DENABLE_IMGUI=OFF \
           -DQt5_DIR="${{ github.workspace }}/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5"
 
     - name: Build Project
