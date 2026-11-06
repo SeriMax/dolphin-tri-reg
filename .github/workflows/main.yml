@@ -21,12 +21,13 @@ jobs:
           sed -i '/implot/d' Externals/CMakeLists.txt
         fi
         
-        # Вырезаем принудительный поиск Gettext, из-за которого падает конфигурация
-        if [ -f CMakeLists.txt ]; then
-          sed -i '/find_package(Gettext/d' CMakeLists.txt
-          sed -i '/find_program(GETTEXT_MSGMERGE_EXECUTABLE/d' CMakeLists.txt
-        fi
+        # Глобально вырезаем Gettext изо ВСЕХ файлов проекта, где бы он ни прятался
+        find . -name "CMakeLists.txt" -exec sed -i '/find_package(Gettext/d' {} + 2>/dev/null || true
+        find . -name "CMakeLists.txt" -exec sed -i '/find_program(GETTEXT_/d' {} + 2>/dev/null || true
+        find . -name "*.cmake" -exec sed -i '/find_package(Gettext/d' {} + 2>/dev/null || true
+        find . -name "*.cmake" -exec sed -i '/find_program(GETTEXT_/d' {} + 2>/dev/null || true
 
+        # Перенаправляем поиск на Qt5
         find . -name "CMakeLists.txt" -exec sed -i 's/Qt6/Qt5/g' {} + 2>/dev/null || true
         find . -name "*.cmake" -exec sed -i 's/Qt6/Qt5/g' {} + 2>/dev/null || true
 
