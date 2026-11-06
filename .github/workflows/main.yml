@@ -20,6 +20,13 @@ jobs:
         if [ -f Externals/CMakeLists.txt ]; then
           sed -i '/implot/d' Externals/CMakeLists.txt
         fi
+        
+        # Вырезаем принудительный поиск Gettext, из-за которого падает конфигурация
+        if [ -f CMakeLists.txt ]; then
+          sed -i '/find_package(Gettext/d' CMakeLists.txt
+          sed -i '/find_program(GETTEXT_MSGMERGE_EXECUTABLE/d' CMakeLists.txt
+        fi
+
         find . -name "CMakeLists.txt" -exec sed -i 's/Qt6/Qt5/g' {} + 2>/dev/null || true
         find . -name "*.cmake" -exec sed -i 's/Qt6/Qt5/g' {} + 2>/dev/null || true
 
