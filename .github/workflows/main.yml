@@ -34,24 +34,16 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     - name: Configure CMake
-      shell: bash
       run: |
-        # Полностью вырезаем глобальные пути к Qt6 из системного окружения сервера
-        export PATH=$(echo $PATH | tr ':' '\n' | grep -v -i 'Qt6' | tr '\n' ':')
-        
-        # Передаем нашей Qt5 наивысший приоритет
-        export Qt5_DIR="${{ github.workspace }}/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5"
-        export CMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/5.15.2/msvc2019_64"
-        
-        cmake -S . -B build -A x64 \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DENABLE_QT=ON \
-          -DENABLE_WX=OFF \
-          -DWARNINGS_AS_ERRORS=OFF \
-          -DUSE_MGBA=OFF \
-          -DENABLE_ANALYTICS=OFF \
-          -DQt5_DIR="$Qt5_DIR" \
-          -DCMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH"
+        cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DENABLE_QT=ON `
+          -DENABLE_WX=OFF `
+          -DWARNINGS_AS_ERRORS=OFF `
+          -DUSE_MGBA=OFF `
+          -DENABLE_ANALYTICS=OFF `
+          -DQt5_DIR="${{ github.workspace }}/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5" `
+          -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/5.15.2/msvc2019_64"
 
     - name: Build Project
       run: |
